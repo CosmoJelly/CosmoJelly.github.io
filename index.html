@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Waleed Nouman · CosmoJelly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── DARK THEME (default) ── */
+  :root,
+  [data-theme="dark"] {
+    --line-bright: #d4a8f0;
+    --line-mid:    #a855c8;
+    --line-deep:   #6d28a8;
+    --line-dim:    #3b1a5e;
+    --bg-fill:     #080610;
+    --text-bright: #ede0ff;
+    --text-mid:    #c9a8e8;
+    --text-muted:  #8b5fb0;
+    --text-dim:    #4a2d72;
+    --accent:      #bf85e8;
+    --green:       #6ee7b7;
+    --win-bg:      rgba(8, 6, 16, 0.82);
+    --win-border:  rgba(168, 85, 200, 0.35);
+    --bar-bg:      rgba(12, 8, 24, 0.72);
+    --bar-border:  rgba(109, 40, 168, 0.4);
+    --tab-border:  rgba(59, 26, 94, 0.7);
+    --card-bg:     rgba(8, 5, 18, 0.5);
+    --card-border: rgba(59, 26, 94, 0.7);
+    --tag-bg:      rgba(109, 40, 168, 0.18);
+    --tag-border:  rgba(109, 40, 168, 0.35);
+    --skill-bg:    rgba(8, 5, 18, 0.5);
+    --skill-border:rgba(109, 40, 168, 0.3);
+    --divider:     rgba(59, 26, 94, 0.6);
+    --scroll-thumb:var(--line-dim);
+    --bg-image: url('wallhaven-6l27v6_2560x1440.png');
+  }
+
+  /* ── LIGHT THEME ── */
+  [data-theme="light"] {
+    --line-bright: #9d174d;
+    --line-mid:    #be185d;
+    --line-deep:   #db2777;
+    --line-dim:    #f472b6;
+    --bg-fill:     #fdf2f8;
+    --text-bright: #1a0a10;
+    --text-mid:    #3b1224;
+    --text-muted:  #6d2748;
+    --text-dim:    #be185d;
+    --accent:      #ec4899;
+    --green:       #065f46;
+    --win-bg:      rgba(255, 250, 252, 0.68);
+    --win-border:  rgba(219, 39, 119, 0.35);
+    --bar-bg:      rgba(255, 245, 250, 0.72);
+    --bar-border:  rgba(219, 39, 119, 0.3);
+    --tab-border:  rgba(244, 114, 182, 0.4);
+    --card-bg:     rgba(255, 245, 250, 0.58);
+    --card-border: rgba(244, 114, 182, 0.4);
+    --tag-bg:      rgba(236, 72, 153, 0.12);
+    --tag-border:  rgba(236, 72, 153, 0.35);
+    --skill-bg:    rgba(255, 245, 250, 0.52);
+    --skill-border:rgba(236, 72, 153, 0.3);
+    --divider:     rgba(244, 114, 182, 0.4);
+    --scroll-thumb:#f9a8d4;
+    --bg-image: url('wallhaven-lywpjl_3840x2160.png');
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-fill);
+    background-image: var(--bg-image);
+    background-size: cover;
+    background-position: center;
+    font-family: var(--mono, 'JetBrains Mono', monospace);
+    color: var(--text-mid);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.5s, color 0.5s;
+  }
+
+  .window {
+    width: min(860px, calc(100vw - 32px));
+    max-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    background: var(--win-bg);
+    border: 1px solid var(--win-border);
+    border-radius: 14px;
+    overflow: hidden;
+    backdrop-filter: blur(18px) saturate(135%);
+    -webkit-backdrop-filter: blur(18px) saturate(135%);
+    box-shadow: 0 0 0 1px rgba(212, 168, 240, 0.06), 0 28px 70px rgba(0,0,0,0.4);
+    transition: background 0.5s, border-color 0.5s;
+  }
+
+  .titlebar {
+    flex-shrink: 0;
+    background: var(--bar-bg);
+    border-bottom: 1px solid var(--bar-border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    transition: background 0.5s, border-color 0.5s;
+  }
+  .win-title { font-size: 12px; color: var(--text-dim); letter-spacing: 0.1em; }
+  .win-title span { color: var(--line-deep); }
+
+  .body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 28px 36px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
+    transition: opacity 0.15s ease;
+  }
+  .body::-webkit-scrollbar { width: 4px; }
+  .body::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 2px; }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--tab-border);
+    margin-bottom: 26px;
+    transition: border-color 0.5s;
+  }
+  .tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 8px 18px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    letter-spacing: 0.05em;
+    transition: color 0.15s;
+  }
+  .tab:hover { color: var(--line-mid); }
+  .tab.active { color: var(--line-bright); border-bottom-color: var(--accent); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .cmd-line {
+    display: flex;
+    align-items: baseline;
+    font-size: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .path  { color: var(--line-dim); }
+  .arrow { color: var(--line-deep); margin: 0 8px; }
+  .command { color: var(--line-mid); }
+
+  .name-block { margin-bottom: 22px; }
+  .name    { font-size: 30px; font-weight: 700; color: var(--text-bright); letter-spacing: 0.03em; line-height: 1.2; }
+  .handle  { font-size: 13px; color: var(--line-deep); letter-spacing: 0.09em; margin-top: 5px; }
+  .tagline { font-size: 13px; color: var(--text-dim); margin-top: 6px; }
+
+  .divider { border: none; border-top: 1px solid var(--divider); margin: 18px 0; }
+
+  .meta-row { display: flex; gap: 12px; font-size: 13px; margin-bottom: 7px; align-items: baseline; }
+  .meta-key { color: var(--text-dim); min-width: 80px; }
+  .meta-val { color: var(--text-mid); }
+  .meta-val a { color: var(--accent); text-decoration: none; }
+  .meta-val a:hover { color: var(--line-bright); text-decoration: underline; }
+  .dot-green { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; vertical-align: middle; }
+
+  .about-text { font-size: 13.5px; color: var(--text-muted); line-height: 1.9; max-width: 600px; margin-bottom: 16px; }
+
+  .proj-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-left: 2px solid var(--line-deep);
+    border-radius: 7px;
+    padding: 15px 18px;
+    margin-bottom: 12px;
+    transition: border-left-color 0.2s, background 0.5s;
+  }
+  .proj-card:hover { border-left-color: var(--accent); }
+  .proj-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 12px; }
+  .proj-name { font-size: 14.5px; font-weight: 500; color: var(--text-bright); }
+  .proj-links { display: flex; gap: 7px; flex-shrink: 0; }
+  .proj-link {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--card-border);
+    padding: 2px 9px;
+    border-radius: 3px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .proj-link:hover { color: var(--line-bright); border-color: var(--line-deep); }
+  .proj-desc { font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-bottom: 10px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--text-bright);
+    border: 1px solid var(--tag-border);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+
+  .skill-section { margin-bottom: 22px; }
+  .skill-section-title {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--divider);
+  }
+  .skill-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-item {
+    display: flex;
+    align-items: center;
+    background: var(--skill-bg);
+    border: 1px solid var(--skill-border);
+    border-radius: 6px;
+    padding: 6px 13px;
+    font-size: 13px;
+    color: var(--text-mid);
+    transition: border-color 0.15s, color 0.15s, background 0.5s;
+  }
+  .skill-item:hover { border-color: var(--accent); color: var(--line-bright); }
+  .skill-item.learning {
+    color: var(--text-dim);
+    border-color: var(--divider);
+    border-style: dashed;
+  }
+  .skill-item.learning:hover { color: var(--text-muted); border-color: var(--line-dim); }
+
+  .contact-row { display: flex; gap: 14px; font-size: 14px; margin-bottom: 11px; align-items: center; }
+  .contact-key { color: var(--text-dim); min-width: 88px; }
+  .contact-val a { color: var(--accent); text-decoration: none; }
+  .contact-val a:hover { color: var(--line-bright); text-decoration: underline; }
+
+  /* ── HIDDEN INPUT TRICK ── */
+  #theme-input {
+    position: fixed;
+    opacity: 0;
+    pointer-events: none;
+    width: 0; height: 0;
+  }
+
+  /* ── THEME HINT ── */
+.theme-hint {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+
+  color: var(--text-bright);
+
+  background: var(--bar-bg);
+  border: 1px solid var(--win-border);
+
+  padding: 8px 12px;
+  border-radius: 8px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+
+  opacity: 0.9;
+  z-index: 1000;
+
+  pointer-events: none;
+
+  transition:
+    background 0.5s,
+    border-color 0.5s,
+    color 0.5s,
+    opacity 0.3s;
+}
+  /* ── THEME FLASH NOTIFICATION ── */
+  .theme-flash {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-bright);
+    background: var(--bar-bg);
+    border: 1px solid var(--win-border);
+    padding: 6px 18px;
+    border-radius: 6px;
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    letter-spacing: 0.06em;
+    z-index: 100;
+  }
+  .theme-flash.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 16px;
+    background: var(--line-mid);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 1.1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+
+</style>
+</head>
+<body>
+
+<!-- Hidden input to capture keypresses for theme switching -->
+<input id="theme-input" type="text" autocomplete="off" autocorrect="off" spellcheck="false" />
+
+<!-- Theme hint -->
+<div class="theme-hint">  terminal accepts commands · try "light-mode" </div>
+
+<!-- Theme flash -->
+<div class="theme-flash" id="theme-flash"></div>
+
+
+
+<div class="window">
+  <div class="titlebar">
+    <span class="win-title"><span>waleed@cosmojelly</span> — ~/portfolio — zsh</span>
+  </div>
+
+  <div class="body">
+    <div class="cmd-line">
+      <span class="path">~/portfolio</span><span class="arrow">❯</span><span class="command">who-am-i</span>
+    </div>
+
+    <div class="name-block">
+      <div class="name">Waleed Nouman</div>
+      <div class="handle">// @CosmoJelly</div>
+      <div class="tagline">aspiring game dev &amp; data scientist · dabbling in everything that fascinates me</div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('about',this)">~/about</button>
+      <button class="tab" onclick="switchTab('projects',this)">~/projects</button>
+      <button class="tab" onclick="switchTab('skills',this)">~/skills</button>
+      <button class="tab" onclick="switchTab('contact',this)">~/contact</button>
+    </div>
+
+    <!-- ABOUT -->
+    <div id="about" class="section active">
+      <div class="cmd-line"><span class="path">~/portfolio</span><span class="arrow">❯</span><span class="command">cat about.txt</span></div>
+      <p class="about-text">I'm a developer who can't stop exploring - one week it's game dev in C#, the next it's data pipelines or building real-time systems. I like making things that are actually useful (or at least interesting), and I'm always on the lookout for the next thing that'll keep me up too late.</p>
+      <p class="about-text">Currently building indie games in Godot, generating synthetic data, and automating things that probably didn't need automating. Crocheting a small army of plushies on the side.</p>
+      <hr class="divider" />
+      <div class="meta-row"><span class="meta-key">status</span><span class="meta-val"><span class="dot-green"></span>open to opportunities</span></div>
+      <div class="meta-row"><span class="meta-key">location</span><span class="meta-val">Pakistan</span></div>
+      <div class="meta-row"><span class="meta-key">focus</span><span class="meta-val">gen ai · data science · full-stack</span></div>
+      <div class="meta-row"><span class="meta-key">github</span><span class="meta-val"><a href="https://github.com/CosmoJelly" target="_blank">github.com/CosmoJelly</a></span></div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div id="projects" class="section">
+      <div class="cmd-line"><span class="path">~/portfolio</span><span class="arrow">❯</span><span class="command">ls -la ./projects</span></div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ websocket-chat</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/websocket-chat" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A real-time chat server built from scratch - WebSockets, Redis pub/sub, presence tracking, typing indicators, and message history. No framework shortcuts.</p>
+        <div class="tag-row"><span class="tag">JavaScript</span><span class="tag">WebSockets</span><span class="tag">Redis</span><span class="tag">Node.js</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ finance-dashboard</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/finance-dashboard" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A personal finance dashboard that pulls real bank data via Plaid, built with Next.js and PostgreSQL. Clean views of spending, income, and trends.</p>
+        <div class="tag-row"><span class="tag">TypeScript</span><span class="tag">Next.js</span><span class="tag">Plaid API</span><span class="tag">PostgreSQL</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ short-form-video-generator</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/short-form-video-generator" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">An automated local pipeline that generates short-form videos - AI narration, auto-subtitles, and vertical rendering, all without leaving your machine.</p>
+        <div class="tag-row"><span class="tag">Python</span><span class="tag">AI / TTS</span><span class="tag">ffmpeg</span><span class="tag">Automation</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ Synthetic_Keylogger_Data</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/Synthetic_Keylogger_Data" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">Generates synthetic keylogger datasets from any text input, with WPM estimation and typo induction to make each run realistically unique. Useful for ML research.</p>
+        <div class="tag-row"><span class="tag">Python</span><span class="tag">Data Science</span><span class="tag">ML / Datasets</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ HKSS_One_Punch_Hornet</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/HKSS_One_Punch_Hornet" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A BepInEx mod for Hollow Knight Silksong that lets Hornet kill any enemy in a single hit. Toggleable in-game via the BepInEx menu. Also published on Nexus Mods.</p>
+        <div class="tag-row"><span>C++</span><span class="tag">C#</span><span class="tag">BepInEx</span><span class="tag">Game Modding</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ HKSS_Death_By_Anything_And_Everything</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/HKSS_Death_By_Anything_And_Everything" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A BepInEx mod for Hollow Knight Silksong that makes every source of damage instantly lethal - a brutal one-hit KO challenge mode. Published on Nexus Mods.</p>
+        <div class="tag-row"><span>C++</span<span class="tag">C#</span><span class="tag">BepInEx</span><span class="tag">Game Modding</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ AI-Chatbot-Using-BERT</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/AI-Chatbot-Using-BERT" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A BERT-powered chatbot with a Game Design knowledge base, PDF parsing, and a Streamlit GUI. Evolving project — still being trained and refined.</p>
+        <div class="tag-row"><span class="tag">Python</span><span class="tag">BERT</span><span class="tag">Streamlit</span><span class="tag">Jupyter</span><span class="tag">NLP</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ Face-Recognition-Algorithms-Analysis</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/Face-Recognition-Algorithms-Analysis" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A comparative study of KNN and SVM for face recognition on the CMU PIE dataset, with Gaussian Naive Bayes analysis. Includes a full written report.</p>
+        <div class="tag-row"><span class="tag">Python</span><span class="tag">KNN</span><span class="tag">SVM</span><span class="tag">Jupyter</span><span class="tag">ML Research</span></div>
+      </div>
+
+      <div class="proj-card">
+        <div class="proj-header"><span class="proj-name">▸ Comprehensive-Time-Series-Forecasting-System</span><div class="proj-links"><a class="proj-link" href="https://github.com/CosmoJelly/Comprehensive-Time-Series-Forecasting-System-with-GUI" target="_blank">⌥ github</a></div></div>
+        <p class="proj-desc">A multi-sector forecasting system with a user-friendly GUI, supporting ARIMA, ETS, SVR, LSTM, Prophet, and SARIMA models with multiple viewing options.</p>
+        <div class="tag-row"><span class="tag">Python</span><span class="tag">ARIMA</span><span class="tag">LSTM</span><span class="tag">SVR</span><span class="tag">Jupyter</span><span class="tag">Time Series</span></div>
+      </div>
+
+      <div style="font-size: 12.5px; color: var(--text-dim); margin-top: 8px;">
+        // all repos → <a href="https://github.com/CosmoJelly?tab=repositories" target="_blank" style="color: var(--line-dim); text-decoration: none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--line-dim)'">github.com/CosmoJelly</a>
+      </div>
+    </div>
+
+    <!-- SKILLS -->
+    <div id="skills" class="section">
+      <div class="cmd-line"><span class="path">~/portfolio</span><span class="arrow">❯</span><span class="command">cat skills.json</span></div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">languages</div>
+        <div class="skill-grid">
+          <div class="skill-item">TypeScript</div><div class="skill-item">JavaScript</div>
+          <div class="skill-item">Python</div><div class="skill-item">C++</div>
+          <div class="skill-item">C#</div><div class="skill-item">Kotlin</div>
+          <div class="skill-item">R</div><div class="skill-item">Bash</div>
+        </div>
+      </div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">frontend &amp; frameworks</div>
+        <div class="skill-grid">
+          <div class="skill-item">React</div><div class="skill-item">Next.js</div>
+          <div class="skill-item">Tailwind CSS</div><div class="skill-item">Electron</div>
+          <div class="skill-item">D3.js</div><div class="skill-item">Streamlit</div>
+        </div>
+      </div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">backend &amp; databases</div>
+        <div class="skill-grid">
+          <div class="skill-item">Node.js</div><div class="skill-item">Express</div>
+          <div class="skill-item">FastAPI</div><div class="skill-item">Flask</div>
+          <div class="skill-item">GraphQL</div><div class="skill-item">PostgreSQL</div>
+          <div class="skill-item">MongoDB</div><div class="skill-item">MySQL</div>
+          <div class="skill-item">Redis</div><div class="skill-item">Cassandra</div>
+          <div class="skill-item">Kafka</div>
+        </div>
+      </div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">ml &amp; data science</div>
+        <div class="skill-grid">
+          <div class="skill-item">PyTorch</div><div class="skill-item">TensorFlow</div>
+          <div class="skill-item">OpenCV</div><div class="skill-item">BERT / NLP</div>
+          <div class="skill-item">pandas</div><div class="skill-item">NumPy</div>
+          <div class="skill-item">Jupyter</div><div class="skill-item">Anaconda</div>
+          <div class="skill-item">ARIMA / LSTM</div><div class="skill-item">SVM / KNN</div>
+        </div>
+      </div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">tools &amp; devops</div>
+        <div class="skill-grid">
+          <div class="skill-item">Docker</div><div class="skill-item">Kubernetes</div>
+          <div class="skill-item">Jenkins</div><div class="skill-item">Postman</div>
+          <div class="skill-item">Git</div><div class="skill-item">Linux</div>
+          <div class="skill-item">Neovim</div><div class="skill-item">Godot Engine</div>
+          <div class="skill-item">BepInEx</div>
+        </div>
+      </div>
+
+      <div class="skill-section">
+        <div class="skill-section-title">currently learning</div>
+        <div class="skill-grid">
+          <div class="skill-item learning">C# · game dev</div>
+          <div class="skill-item learning">pixel art</div>
+          <div class="skill-item learning">Godot game systems</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div id="contact" class="section">
+      <div class="cmd-line"><span class="path">~/portfolio</span><span class="arrow">❯</span><span class="command">cat contact.txt</span></div>
+      <div class="contact-row"><span class="contact-key">email</span><span class="contact-val"><a href="mailto:cosmicjellyfish2002@gmail.com">cosmicjellyfish2002@gmail.com</a></span></div>
+      <div class="contact-row"><span class="contact-key">github</span><span class="contact-val"><a href="https://github.com/CosmoJelly" target="_blank">github.com/CosmoJelly</a></span></div>
+      <div class="contact-row"><span class="contact-key">linkedin</span><span class="contact-val"><a href="https://linkedin.com/in/waleed-nouman" target="_blank">linkedin.com/in/waleed-nouman</a></span></div>
+      <div class="contact-row"><span class="contact-key">twitter / x</span><span class="contact-val"><a href="https://x.com/CosmoJelly" target="_blank">x.com/CosmoJelly</a></span></div>
+      <div class="contact-row"><span class="contact-key">instagram</span><span class="contact-val"><a href="https://instagram.com/waleed_nouman" target="_blank">@waleed_nouman</a></span></div>
+      <div class="contact-row"><span class="contact-key">twitch</span><span class="contact-val"><a href="https://twitch.tv/cosmojellyfish" target="_blank">twitch.tv/cosmojellyfish</a></span></div>
+      <hr class="divider" />
+      <div style="font-size: 12.5px; color: var(--text-dim);">// best way to reach me → email or Discord (506087290783793152)</div>
+    </div>
+    
+    <!-- Interactive Terminal Input -->
+	<div id="terminal-line" style="margin-top: 22px; font-size: 14px; display: flex; align-items: center; flex-wrap: wrap;">
+	  <span class="path">~/portfolio</span>
+	  <span class="arrow">❯</span>
+	  <span id="typed-command" class="command"></span>
+	  <span class="cursor"></span>
+	</div>
+  </div>
+</div>
+
+<script>
+  /* ── TAB SWITCHING ── */
+  function switchTab(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+	/* ── THEME COMMAND LISTENER ── */
+	const input = document.getElementById('theme-input');
+	const flash = document.getElementById('theme-flash');
+	const typedCommand = document.getElementById('typed-command');
+
+	let flashTimer = null;
+
+	document.addEventListener('click', e => {
+	  if (!e.target.closest('a, button')) {
+	    input.focus();
+	  }
+	});
+
+	window.addEventListener('load', () => input.focus());
+
+	function showFlash(msg) {
+	  flash.textContent = msg;
+	  flash.classList.add('show');
+
+	  if (flashTimer) clearTimeout(flashTimer);
+
+	  flashTimer = setTimeout(() => {
+	    flash.classList.remove('show');
+	  }, 2200);
+	}
+
+	function updateVisibleCommand() {
+	  typedCommand.textContent = input.value;
+	}
+
+	function clearTerminal() {
+	  typedCommand.textContent = '';
+	  input.value = '';
+	}
+
+	input.addEventListener('input', updateVisibleCommand);
+
+	input.addEventListener('keydown', e => {
+	  if (e.key === 'Escape') {
+	    clearTerminal();
+	    return;
+	  }
+
+	  if (e.key === 'Enter') {
+	    const val = input.value.toLowerCase().trim().replace(/\s/g, '');
+
+	    if (val === 'dark-mode' || val === 'darkmode' || val === 'dark mode') {
+	      document.documentElement.setAttribute('data-theme', 'dark');
+	      showFlash('// theme: dark-mode activated');
+	    } else if (val === 'light-mode' || val === 'lightmode' || val === 'light mode') {
+	      document.documentElement.setAttribute('data-theme', 'light');
+	      showFlash('// theme: light-mode activated');
+	    } else {
+	      showFlash('// command: invalid');
+	    }
+	    
+
+	    clearTerminal();
+	  }
+
+	  // Prevent infinite typing
+	  if (input.value.length > 60) {
+	    clearTerminal();
+	  }
+	});
+
+
+</script>
+
+</body>
+</html>
